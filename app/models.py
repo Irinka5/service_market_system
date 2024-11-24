@@ -13,7 +13,6 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Связь с заявками
     applications = db.relationship('Application', backref='user', lazy=True)
 
 
@@ -26,7 +25,6 @@ class Service(db.Model):
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
 
-    # Связь с заявками
     applications = db.relationship('Application', backref='service', lazy=True)
 
 
