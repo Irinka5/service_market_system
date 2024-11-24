@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Service Market System{% endblock %}
+
+{% block content %}
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Добро пожаловать в систему Service Market!</h1>
+        <p class="lead">Здесь вы можете подать заявку на приобретение услуг.</p>
+        <hr class="my-4">
+        {% if not current_user.is_authenticated %}
+            <p>Пожалуйста, зарегистрируйтесь или войдите в систему, чтобы начать пользоваться услугами.</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Регистрация</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Вход</a>
+        {% else %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('new_application') }}" role="button">Создать заявку</a>
+        {% endif %}
+    </div>
+
+    <div class="mt-5">
+        <h2>Доступные услуги</h2>
+        <div class="row">
+            {% for service in services %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ service.name }}</h5>
+                            <p class="card-text">{{ service.description }}</p>
+                            <p class="card-text"><strong>Цена: {{ service.price }} руб.</strong></p>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('new_application') }}" class="btn btn-success">Оформить заявку</a>
+                            {% else %}
+                                <p class="text-muted">Войдите, чтобы оформить заявку.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
