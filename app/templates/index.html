@@ -9,8 +9,8 @@
         <hr class="my-4">
         {% if not current_user.is_authenticated %}
             <p>Пожалуйста, зарегистрируйтесь или войдите в систему, чтобы начать пользоваться услугами.</p>
-            <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Регистрация</a>
-            <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Вход</a>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Регистрация</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Вход</a>
         {% else %}
             <a class="btn btn-primary btn-lg" href="{{ url_for('new_application') }}" role="button">Создать заявку</a>
         {% endif %}

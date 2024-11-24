@@ -10,7 +10,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Service Market System</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Service Market System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -18,17 +18,17 @@
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('applications') }}">Мои заявки</a>
+                            <a class="nav-link" href="{{ url_for('main.applications') }}">Мои заявки</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">Выйти ({{ current_user.username }})</a>
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Выйти ({{ current_user.username }})</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Вход</a>
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Вход</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">Регистрация</a>
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">Регистрация</a>
                         </li>
                     {% endif %}
                 </ul>

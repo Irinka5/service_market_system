@@ -1,4 +1,4 @@
-from app import create_app
+from app import create_app, db
 
 # Создание экземпляра приложения
 app = create_app()
