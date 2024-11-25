@@ -15,15 +15,36 @@ def index():
 @login_required
 def new_application():
     form = ApplicationForm()
-    services = Service.query.all()
-    form.service_id.choices = [(service.id, service.name) for service in services]
 
+    # Проверка на валидность формы
     if form.validate_on_submit():
-        application = Application(user_id=current_user.id, service_id=form.service_id.data, description=form.description.data)
+        application = Application(
+            user_id=current_user.id,
+            service_type=form.service_type.data,
+            sub_service=form.sub_service.data,
+            description=form.description.data,
+            city=form.city.data,
+            street=form.street.data,
+            house_number=form.house_number.data,
+            postal_code=form.postal_code.data,
+            contact_name=form.contact_name.data,
+            phone=form.phone.data,
+            email=form.email.data,
+            preferred_date=form.preferred_date.data,
+            preferred_time=form.preferred_time.data,
+            budget=form.budget.data,
+            additional_requirements=form.additional_requirements.data,
+            payment_method=form.payment_method.data,
+            comments=form.comments.data,
+        )
         db.session.add(application)
         db.session.commit()
         flash('Ваша заявка успешно создана!', 'success')
         return redirect(url_for('main.index'))
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Ошибка в поле {field}: {error}")
 
     return render_template('application_form.html', form=form)
 

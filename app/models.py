@@ -25,16 +25,29 @@ class Service(db.Model):
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
 
-    applications = db.relationship('Application', backref='service', lazy=True)
 
-
+# Модель заявки
 # Модель заявки
 class Application(db.Model):
     __tablename__ = 'applications'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)
+    service_type = db.Column(db.String(100), nullable=False)
+    sub_service = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=False)
+    city = db.Column(db.String(150), nullable=False)
+    street = db.Column(db.String(150), nullable=False)
+    house_number = db.Column(db.String(50), nullable=False)
+    postal_code = db.Column(db.String(20), nullable=True)
+    contact_name = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(150), nullable=False)
+    preferred_date = db.Column(db.Date, nullable=False)
+    preferred_time = db.Column(db.Time, nullable=True)
+    budget = db.Column(db.Float, nullable=False)
+    additional_requirements = db.Column(db.Text, nullable=True)
+    payment_method = db.Column(db.String(50), nullable=False)
+    comments = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), default='Создана', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

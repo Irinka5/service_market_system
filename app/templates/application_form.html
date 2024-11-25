@@ -7,19 +7,33 @@
     <h2 class="text-center">Создание заявки</h2>
     <form method="POST" action="{{ url_for('main.new_application') }}">
         {{ form.hidden_tag() }}
-        <div class="mb-3">
-            <label for="service_id" class="form-label">Выберите услугу</label>
-            {{ form.service_id(class_='form-control') }}
-            {% if form.service_id.errors %}
+
+         <div class="mb-3">
+           <label for="service_type" class="form-label">{{ form.service_type.label }}</label>
+            {{ form.service_type(class_="form-control") }}
+            {% if form.service_type.errors %}
                 <div class="text-danger">
-                    {% for error in form.service_id.errors %}
+                    {% for error in form.service_type.errors %}
                         <p>{{ error }}</p>
                     {% endfor %}
                 </div>
             {% endif %}
         </div>
+
         <div class="mb-3">
-            <label for="description" class="form-label">Описание заявки</label>
+            <label for="sub_service" class="form-label">{{ form.sub_service.label }}</label>
+            {{ form.sub_service(class_="form-control") }}
+            {% if form.sub_service.errors %}
+                <div class="text-danger">
+                    {% for error in form.sub_service.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Подробное описание задачи</label>
             {{ form.description(class_='form-control') }}
             {% if form.description.errors %}
                 <div class="text-danger">
@@ -29,7 +43,175 @@
                 </div>
             {% endif %}
         </div>
+
+        <div class="mb-3">
+            <label for="city" class="form-label">Город</label>
+            {{ form.city(class_='form-control') }}
+            {% if form.city.errors %}
+                <div class="text-danger">
+                    {% for error in form.city.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="street" class="form-label">Улица</label>
+            {{ form.street(class_='form-control') }}
+            {% if form.street.errors %}
+                <div class="text-danger">
+                    {% for error in form.street.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="house_number" class="form-label">Номер дома/квартиры</label>
+            {{ form.house_number(class_='form-control') }}
+            {% if form.house_number.errors %}
+                <div class="text-danger">
+                    {% for error in form.house_number.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="postal_code" class="form-label">Почтовый индекс (если применимо)</label>
+            {{ form.postal_code(class_='form-control') }}
+            {% if form.postal_code.errors %}
+                <div class="text-danger">
+                    {% for error in form.postal_code.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="contact_name" class="form-label">Имя</label>
+            {{ form.contact_name(class_='form-control') }}
+            {% if form.contact_name.errors %}
+                <div class="text-danger">
+                    {% for error in form.contact_name.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Телефон</label>
+            {{ form.phone(class_='form-control') }}
+            {% if form.phone.errors %}
+                <div class="text-danger">
+                    {% for error in form.phone.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Электронная почта</label>
+            {{ form.email(class_='form-control') }}
+            {% if form.email.errors %}
+                <div class="text-danger">
+                    {% for error in form.email.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="preferred_date" class="form-label">Предпочтительная дата выполнения</label>
+            {{ form.preferred_date(class_='form-control') }}
+            {% if form.preferred_date.errors %}
+                <div class="text-danger">
+                    {% for error in form.preferred_date.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="preferred_time" class="form-label">Предпочтительное время выполнения</label>
+            {{ form.preferred_time(class_='form-control') }}
+            {% if form.preferred_time.errors %}
+                <div class="text-danger">
+                    {% for error in form.preferred_time.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="budget" class="form-label">Максимальная сумма, которую вы готовы заплатить</label>
+            {{ form.budget(class_='form-control') }}
+            {% if form.budget.errors %}
+                <div class="text-danger">
+                    {% for error in form.budget.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="additional_requirements" class="form-label">Дополнительные пожелания или требования</label>
+            {{ form.additional_requirements(class_='form-control') }}
+            {% if form.additional_requirements.errors %}
+                <div class="text-danger">
+                    {% for error in form.additional_requirements.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="payment_method" class="form-label">Предпочтительный способ оплаты</label>
+            {{ form.payment_method(class_='form-control') }}
+            {% if form.payment_method.errors %}
+                <div class="text-danger">
+                    {% for error in form.payment_method.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="comments" class="form-label">Дополнительные комментарии</label>
+            {{ form.comments(class_='form-control') }}
+            {% if form.comments.errors %}
+                <div class="text-danger">
+                    {% for error in form.comments.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
         <button type="submit" class="btn btn-primary">Создать заявку</button>
     </form>
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
