@@ -12,7 +12,7 @@
             <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Регистрация</a>
             <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Вход</a>
         {% else %}
-            <a class="btn btn-primary btn-lg" href="{{ url_for('new_application') }}" role="button">Создать заявку</a>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('main.new_application') }}" role="button">Создать заявку</a>
         {% endif %}
     </div>
 
@@ -27,7 +27,7 @@
                             <p class="card-text">{{ service.description }}</p>
                             <p class="card-text"><strong>Цена: {{ service.price }} руб.</strong></p>
                             {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('new_application') }}" class="btn btn-success">Оформить заявку</a>
+                                <a href="{{ url_for('main.new_application') }}" class="btn btn-success">Оформить заявку</a>
                             {% else %}
                                 <p class="text-muted">Войдите, чтобы оформить заявку.</p>
                             {% endif %}
