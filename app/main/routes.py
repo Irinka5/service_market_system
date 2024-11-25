@@ -19,11 +19,11 @@ def new_application():
     form.service_id.choices = [(service.id, service.name) for service in services]
 
     if form.validate_on_submit():
-        application = Application(user_id=current_user.id, service_id=form.service_id.data)
+        application = Application(user_id=current_user.id, service_id=form.service_id.data, description=form.description.data)
         db.session.add(application)
         db.session.commit()
         flash('Ваша заявка успешно создана!', 'success')
-        return redirect(url_for('main.applications'))
+        return redirect(url_for('main.index'))
 
     return render_template('application_form.html', form=form)
 

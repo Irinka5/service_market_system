@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Создание заявки - Service Market System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Создание заявки</h2>
+    <form method="POST" action="{{ url_for('main.new_application') }}">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="service_id" class="form-label">Выберите услугу</label>
+            {{ form.service_id(class_='form-control') }}
+            {% if form.service_id.errors %}
+                <div class="text-danger">
+                    {% for error in form.service_id.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание заявки</label>
+            {{ form.description(class_='form-control') }}
+            {% if form.description.errors %}
+                <div class="text-danger">
+                    {% for error in form.description.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Создать заявку</button>
+    </form>
+</div>
+{% endblock %}

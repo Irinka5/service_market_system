@@ -37,12 +37,8 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
-# Форма создания/редактирования заявки
+# Форма создания заявки
 class ApplicationForm(FlaskForm):
-    service_id = SelectField('Выберите услугу', choices=[], coerce=int, validators=[DataRequired()])
-    status = SelectField('Статус заявки', choices=[
-        ('Создана', 'Создана'),
-        ('Обрабатывается', 'Обрабатывается'),
-        ('Завершена', 'Завершена')
-    ], validators=[DataRequired()])
-    submit = SubmitField('Сохранить заявку')
+    service_id = SelectField('Выберите услугу', coerce=int, validators=[DataRequired()])
+    description = StringField('Описание заявки', validators=[DataRequired()])
+    submit = SubmitField('Создать заявку')
