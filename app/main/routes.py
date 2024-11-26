@@ -17,6 +17,13 @@ def new_application():
     form = ApplicationForm()
 
     services = Service.query.all()
+    form.service_type.choices = [(service.id, service.name) for service in services]
+
+    if form.service_type.data:
+        sub_services = SubService.query.filter_by(service_id=form.service_type.data).all()
+        form.sub_service.choices = [(sub_service.id, sub_service.name) for sub_service in sub_services]
+    else:
+        form.sub_service.choices = []
 
     # Проверка на валидность формы
     if form.validate_on_submit():
