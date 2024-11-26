@@ -33,13 +33,24 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-        from .models import Service
+        from .models import Service, SubService
 
         if Service.query.count() == 0:
             initial_services = [
-                Service(name="Ремонт сантехники", description="Услуги по ремонту сантехнического оборудования", price=2000.0),
-                Service(name="Уборка квартиры", description="Профессиональная уборка жилых помещений", price=1500.0),
-                Service(name="Строительство", description="Строительные работы различной сложности", price=50000.0)
+                Service(name="Ремонт сантехники", description="Услуги по ремонту сантехнического оборудования"),
+                Service(name="Уборка квартиры", description="Профессиональная уборка жилых помещений"),
+                Service(name="IT", description="Услуги по в сфере информационных технологий"),
+                Service(name="Строительство", description="Строительные работы различной сложности")
+            ]
+            db.session.bulk_save_objects(initial_services)
+            db.session.commit()
+
+        if SubService.query.count() == 0:
+            initial_services = [
+                Service(name="Ремонт сантехники", description="Услуги по ремонту сантехнического оборудования"),
+                Service(name="Уборка квартиры", description="Профессиональная уборка жилых помещений"),
+                Service(name="IT", description="Услуги по в сфере информационных технологий"),
+                Service(name="Строительство", description="Строительные работы различной сложности")
             ]
             db.session.bulk_save_objects(initial_services)
             db.session.commit()

@@ -23,10 +23,18 @@ class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    price = db.Column(db.Float, nullable=False)
 
+    sub_services = db.relationship('SubService', backref='category', lazy=True)
 
-# Модель заявки
+# Модель подкатегории услуги
+class SubService(db.Model):
+    __tablename__ = 'sub_services'
+
+    id = db.Column(db.Integer, primary_key=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)  # Связь с таблицей services
+    name = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
 # Модель заявки
 class Application(db.Model):
     __tablename__ = 'applications'

@@ -25,7 +25,6 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ service.name }}</h5>
                             <p class="card-text">{{ service.description }}</p>
-                            <p class="card-text"><strong>Цена: {{ service.price }} руб.</strong></p>
                             {% if current_user.is_authenticated %}
                                 <a href="{{ url_for('main.new_application') }}" class="btn btn-success">Оформить заявку</a>
                             {% else %}
