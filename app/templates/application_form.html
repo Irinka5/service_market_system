@@ -8,9 +8,15 @@
     <form method="POST" action="{{ url_for('main.new_application') }}">
         {{ form.hidden_tag() }}
 
+        <!-- Поле выбора категории услуги -->
          <div class="mb-3">
-           <label for="service_type" class="form-label">{{ form.service_type.label }}</label>
-            {{ form.service_type(class_="form-control") }}
+            <label for="service_type" class="form-label">{{ form.service_type.label }}</label>
+            <select id="service_type" name="service_type" class="form-control">
+                <option value="">Выберите категорию</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+            </select>
             {% if form.service_type.errors %}
                 <div class="text-danger">
                     {% for error in form.service_type.errors %}
@@ -20,9 +26,13 @@
             {% endif %}
         </div>
 
+        <!-- Поле выбора подкатегории -->
         <div class="mb-3">
             <label for="sub_service" class="form-label">{{ form.sub_service.label }}</label>
-            {{ form.sub_service(class_="form-control") }}
+            <select id="sub_service" name="sub_service" class="form-control">
+                <option value="">Выберите подкатегорию</option>
+                <!-- Здесь подкатегории будут добавляться динамически с помощью JS -->
+            </select>
             {% if form.sub_service.errors %}
                 <div class="text-danger">
                     {% for error in form.sub_service.errors %}
@@ -214,4 +224,47 @@
     </div>
     {% endif %}
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        console.log('jQuery is ready');
+
+        // Поля выбора категорий и подкатегорий
+        const $serviceTypeSelect = $("#service_type");
+        const $subServiceSelect = $("#sub_service");
+
+        // Обработчик события при изменении категории
+        $serviceTypeSelect.on("change", function() {
+            const serviceId = $(this).val();
+            console.log('Selected service ID:', serviceId);
+
+            if (serviceId) {
+                $.ajax({
+                    url: `/get_sub_services/${serviceId}`,
+                    method: "GET",
+                    success: function(data) {
+                        // Очищаем список подкатегорий
+                        $subServiceSelect.empty();
+                        $subServiceSelect.append('<option value="">Выберите подкатегорию</option>');
+
+                        // Добавляем новые опции подкатегорий
+                        data.sub_services.forEach(function(subService) {
+                            const option = $('<option>', {
+                                value: subService.id,
+                                text: subService.name
+                            });
+                            $subServiceSelect.append(option);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка при загрузке подкатегорий:', error);
+                    }
+                });
+            } else {
+                $subServiceSelect.empty();
+                $subServiceSelect.append('<option value="">Выберите подкатегорию</option>');
+            }
+        });
+    });
+</script>
 {% endblock %}

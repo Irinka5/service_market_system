@@ -1,7 +1,7 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from .. import db
-from ..models import Service, Application
+from ..models import Service, Application, SubService
 from ..forms import ApplicationForm
 from . import main
 
@@ -15,6 +15,8 @@ def index():
 @login_required
 def new_application():
     form = ApplicationForm()
+
+    services = Service.query.all()
 
     # Проверка на валидность формы
     if form.validate_on_submit():
@@ -46,7 +48,7 @@ def new_application():
             for error in errors:
                 print(f"Ошибка в поле {field}: {error}")
 
-    return render_template('application_form.html', form=form)
+    return render_template('application_form.html', form=form, services=services)
 
 @main.route('/applications')
 @login_required
@@ -92,3 +94,10 @@ def delete_application(application_id):
     db.session.commit()
     flash('Заявка успешно удалена.', 'success')
     return redirect(url_for('main.applications'))
+
+
+@main.route('/get_sub_services/<int:service_id>', methods=['GET'])
+def get_sub_services(service_id):
+    sub_services = SubService.query.filter_by(service_id=service_id).all()
+    sub_services_data = [{"id": sub_service.id, "name": sub_service.name} for sub_service in sub_services]
+    return jsonify(sub_services=sub_services_data)

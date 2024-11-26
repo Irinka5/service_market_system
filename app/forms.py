@@ -39,8 +39,8 @@ class LoginForm(FlaskForm):
 
 # Форма создания заявки
 class ApplicationForm(FlaskForm):
-    service_type = SelectField('Категория услуги', choices=[('repair', 'Ремонт'), ('cleaning', 'Уборка'), ('construction', 'Строительство')], validators=[DataRequired()])
-    sub_service = SelectField('Подкатегория или конкретная услуга', choices=[('plumbing', 'Ремонт сантехники'), ('apartment_cleaning', 'Уборка квартиры'), ('house_construction', 'Строительство дома')], validators=[DataRequired()])
+    service_type = SelectField('Категория услуги', coerce=int, validators=[DataRequired()])
+    sub_service = SelectField('Подкатегория или конкретная услуга', coerce=int, validators=[DataRequired()])
     description = TextAreaField('Подробное описание задачи', validators=[DataRequired()])
     city = StringField('Город', validators=[DataRequired()])
     street = StringField('Улица', validators=[DataRequired()])
