@@ -115,29 +115,6 @@ def get_application_details(application_id):
         'preferred_time': application.preferred_time.strftime('%H:%M') if application.preferred_time else None
     })
 
-    # Полный доступ
-    return jsonify({
-        "id": application.id,
-        "username": application.user.username,
-        "service_type": application.service_type,
-        "sub_service": application.sub_service,
-        "description": application.description,
-        "city": application.city,
-        "street": application.street,
-        "house_number": application.house_number,
-        "postal_code": application.postal_code,
-        "contact_name": application.contact_name,
-        "phone": application.phone,
-        "email": application.email,
-        "preferred_date": application.preferred_date.strftime('%Y-%m-%d') if application.preferred_date else None,
-        "preferred_time": application.preferred_time,
-        "budget": application.budget,
-        "additional_requirements": application.additional_requirements,
-        "payment_method": application.payment_method,
-        "comments": application.comments,
-        "status": application.status
-    })
-
 
 @main.route('/application/<int:application_id>/update', methods=['GET', 'POST'])
 @login_required
