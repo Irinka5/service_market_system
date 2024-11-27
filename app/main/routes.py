@@ -11,6 +11,7 @@ def index():
     services = Service.query.all()
     return render_template('index.html', services=services)
 
+
 @main.route('/application/new', methods=['GET', 'POST'])
 @login_required
 def new_application():
@@ -57,16 +58,86 @@ def new_application():
 
     return render_template('application_form.html', form=form, services=services)
 
-@main.route('/applications')
+
+@main.route('/applications', methods=['GET'])
 @login_required
-def applications():
-    if current_user.role == 'client':
-        applications = Application.query.filter_by(user_id=current_user.id).all()
-    elif current_user.role in ['manager', 'admin']:
-        applications = Application.query.all()
-    else:
-        applications = []
-    return render_template('application_list.html', applications=applications)
+def application_list():
+    return render_template('application_list.html')
+
+
+@main.route('/api/applications', methods=['GET'])
+@login_required
+def get_applications():
+    """
+    Возвращает список заявок (все или только текущего пользователя) в формате JSON.
+    """
+    # Определяем тип фильтра (все заявки или только пользователя)
+    user_only = request.args.get('user_only', default='true', type=str).lower() == 'true'
+    query = Application.query
+
+    if user_only:
+        query = query.filter_by(user_id=current_user.id)
+
+    applications = query.all()
+    application__list = [
+        {
+            "id": application.id,
+            "username": application.user.username if not user_only else None,
+            "service_type": application.service_type,
+            "sub_service": application.sub_service,
+            "description": application.description,
+            "city": application.city,
+            "budget": application.budget,
+        }
+        for application in applications
+    ]
+
+    return jsonify({"applications": application__list})
+
+
+@main.route('/api/application/<int:application_id>', methods=['GET'])
+@login_required
+def get_application_details(application_id):
+    application = Application.query.get_or_404(application_id)
+
+    # Convert datetime and time fields to string format before returning JSON
+    return jsonify({
+        'username': application.user.username,
+        'service_type': application.service_type,
+        'sub_service': application.sub_service,
+        'description': application.description,
+        'city': application.city,
+        'budget': application.budget,
+        'contact_name': application.contact_name,
+        'phone': application.phone,
+        'email': application.email,
+        'preferred_date': application.preferred_date.strftime('%Y-%m-%d') if application.preferred_date else None,
+        'preferred_time': application.preferred_time.strftime('%H:%M') if application.preferred_time else None
+    })
+
+    # Полный доступ
+    return jsonify({
+        "id": application.id,
+        "username": application.user.username,
+        "service_type": application.service_type,
+        "sub_service": application.sub_service,
+        "description": application.description,
+        "city": application.city,
+        "street": application.street,
+        "house_number": application.house_number,
+        "postal_code": application.postal_code,
+        "contact_name": application.contact_name,
+        "phone": application.phone,
+        "email": application.email,
+        "preferred_date": application.preferred_date.strftime('%Y-%m-%d') if application.preferred_date else None,
+        "preferred_time": application.preferred_time,
+        "budget": application.budget,
+        "additional_requirements": application.additional_requirements,
+        "payment_method": application.payment_method,
+        "comments": application.comments,
+        "status": application.status
+    })
+
 
 @main.route('/application/<int:application_id>/update', methods=['GET', 'POST'])
 @login_required
@@ -88,6 +159,7 @@ def update_application(application_id):
         return redirect(url_for('main.applications'))
 
     return render_template('application_form.html', form=form)
+
 
 @main.route('/application/<int:application_id>/delete', methods=['POST'])
 @login_required

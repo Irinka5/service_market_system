@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, StringField, DateField, TimeField, FloatField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, StringField, DateField, TimeField, FloatField, BooleanField
 from wtforms.validators import DataRequired, Optional, Length, EqualTo, ValidationError, Email
 from .models import User
 
@@ -56,3 +56,8 @@ class ApplicationForm(FlaskForm):
     payment_method = SelectField('Способ оплаты', choices=[('cash', 'Наличные'), ('card', 'Банковская карта'), ('online', 'Онлайн-платеж')], validators=[DataRequired()])
     comments = TextAreaField('Комментарии')
     submit = SubmitField('Создать заявку')
+
+class ApplicationFilterForm(FlaskForm):
+    service_type = SelectField('Категория услуги', choices=[], coerce=int)
+    sub_service = SelectField('Подкатегория услуги', choices=[], coerce=int)
+    user_only = BooleanField('Только мои заявки', default=True)
