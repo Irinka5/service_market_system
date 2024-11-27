@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заявок - Service Market System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Список заявок</h2>
+    <div class="d-flex justify-content-between mb-3">
+        <button id="toggle-my-applications" class="btn btn-primary">Показать все заявки</button>
+        <input type="text" id="search-filter" class="form-control w-25" placeholder="Поиск по описанию, городу...">
+    </div>
+    <table id="applications-table" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Пользователь</th>
+                <th>Категория</th>
+                <th>Подкатегория</th>
+                <th>Описание</th>
+                <th>Город</th>
+                <th>Бюджет</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Динамически подгружаемые заявки будут добавляться сюда -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальное окно для деталей заявки -->
+<div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applicationModalLabel">Детали заявки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Здесь будут детали заявки -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        loadApplications(true);
+
+        // Обработчик переключателя заявок
+        $('#toggle-my-applications').click(function() {
+            const showingMyApplications = $(this).text() === 'Показать все заявки';
+            loadApplications(!showingMyApplications);
+            $(this).text(showingMyApplications ? 'Показать мои заявки' : 'Показать все заявки');
+        });
+
+        // Функция для загрузки заявок
+        function loadApplications(userOnly) {
+            $.ajax({
+                url: "/api/applications",
+                type: "GET",
+                data: {
+                    user_only: userOnly
+                },
+                success: function(data) {
+                    $('#applications-table tbody').empty();
+                    data.applications.forEach(function(application) {
+                        const row = `
+                            <tr data-id="${application.id}">
+                                <td>${application.username || 'Вы'}</td>
+                                <td>${application.service_type}</td>
+                                <td>${application.sub_service}</td>
+                                <td>${application.description}</td>
+                                <td>${application.city}</td>
+                                <td>${application.budget}</td>
+                            </tr>`;
+                        $('#applications-table tbody').append(row);
+                    });
+                },
+                error: function(error) {
+                    console.error('Ошибка при загрузке заявок:', error);
+                }
+            });
+        }
+
+        // Обработчик для открытия модального окна с деталями заявки
+        $('#applications-table').on('click', 'tr', function() {
+            const applicationId = $(this).data('id');
+
+            $.ajax({
+                url: `/api/application/${applicationId}`,
+                type: "GET",
+                success: function(data) {
+                    $('#applicationModal .modal-body').html(`
+                        <p><strong>Пользователь:</strong> ${data.username}</p>
+                        <p><strong>Категория:</strong> ${data.service_type}</p>
+                        <p><strong>Подкатегория:</strong> ${data.sub_service}</p>
+                        <p><strong>Описание:</strong> ${data.description}</p>
+                        <p><strong>Город:</strong> ${data.city}</p>
+                        <p><strong>Бюджет:</strong> ${data.budget}</p>
+                        <p><strong>Контактное имя:</strong> ${data.contact_name || ''}</p>
+                        <p><strong>Телефон:</strong> ${data.phone || ''}</p>
+                        <p><strong>Email:</strong> ${data.email || ''}</p>
+                    `);
+                    $('#applicationModal').modal('show');
+                },
+                error: function(error) {
+                    console.error('Ошибка при загрузке деталей заявки:', error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
