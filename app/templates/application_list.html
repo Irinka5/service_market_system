@@ -18,6 +18,7 @@
                 <th>Описание</th>
                 <th>Город</th>
                 <th>Бюджет</th>
+                <th>Статус</th>
             </tr>
         </thead>
         <tbody>
@@ -74,6 +75,7 @@
                                 <td>${application.description}</td>
                                 <td>${application.city}</td>
                                 <td>${application.budget}</td>
+                                <td>${application.status}</td>
                             </tr>`;
                         $('#applications-table tbody').append(row);
                     });
@@ -102,6 +104,7 @@
                         <p><strong>Контактное имя:</strong> ${data.contact_name || ''}</p>
                         <p><strong>Телефон:</strong> ${data.phone || ''}</p>
                         <p><strong>Email:</strong> ${data.email || ''}</p>
+                        <p><strong>Статус:</strong> ${data.status || ''}</p>
                     `);
                     $('#applicationModal').modal('show');
                 },

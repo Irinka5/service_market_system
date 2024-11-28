@@ -79,15 +79,17 @@ def get_applications():
         query = query.filter_by(user_id=current_user.id)
 
     applications = query.all()
+
     application__list = [
         {
             "id": application.id,
             "username": application.user.username if not user_only else None,
-            "service_type": application.service_type,
-            "sub_service": application.sub_service,
+            "service_type": Service.query.get(application.service_type).name if application.service_type else None,
+            "sub_service": SubService.query.get(application.sub_service).name if application.sub_service else None,
             "description": application.description,
             "city": application.city,
             "budget": application.budget,
+            "status": application.status,
         }
         for application in applications
     ]
@@ -100,11 +102,14 @@ def get_applications():
 def get_application_details(application_id):
     application = Application.query.get_or_404(application_id)
 
-    # Convert datetime and time fields to string format before returning JSON
+    # Получаем имена категории и подкатегории, а не объекты целиком
+    service = Service.query.get(application.service_type)
+    sub_service = SubService.query.get(application.sub_service)
+
     return jsonify({
         'username': application.user.username,
-        'service_type': application.service_type,
-        'sub_service': application.sub_service,
+        'service_type': service.name if service else None,
+        'sub_service': sub_service.name if sub_service else None,
         'description': application.description,
         'city': application.city,
         'budget': application.budget,
@@ -112,8 +117,11 @@ def get_application_details(application_id):
         'phone': application.phone,
         'email': application.email,
         'preferred_date': application.preferred_date.strftime('%Y-%m-%d') if application.preferred_date else None,
-        'preferred_time': application.preferred_time.strftime('%H:%M') if application.preferred_time else None
+        'preferred_time': application.preferred_time.strftime('%H:%M') if application.preferred_time else None,
+        "status": application.status,
+
     })
+
 
 
 @main.route('/application/<int:application_id>/update', methods=['GET', 'POST'])

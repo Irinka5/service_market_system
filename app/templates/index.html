@@ -12,7 +12,11 @@
             <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Регистрация</a>
             <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Вход</a>
         {% else %}
-            <a class="btn btn-primary btn-lg" href="{{ url_for('main.new_application') }}" role="button">Создать заявку</a>
+            {% if current_user.role == 'executor' %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('main.application_list') }}" role="button">Список заявок</a>
+            {% elif current_user.role == 'customer' %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('main.new_application') }}" role="button">Создать заявку</a>
+            {% endif %}
         {% endif %}
     </div>
 
@@ -26,7 +30,11 @@
                             <h5 class="card-title">{{ service.name }}</h5>
                             <p class="card-text">{{ service.description }}</p>
                             {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('main.new_application') }}" class="btn btn-success">Оформить заявку</a>
+                                {% if current_user.role == 'customer' %}
+                                    <a href="{{ url_for('main.new_application') }}" class="btn btn-success">Оформить заявку</a>
+                                {% elif current_user.role == 'executor' %}
+                                    <p class="text-muted">Вы можете просматривать доступные заявки.</p>
+                                {% endif %}
                             {% else %}
                                 <p class="text-muted">Войдите, чтобы оформить заявку.</p>
                             {% endif %}

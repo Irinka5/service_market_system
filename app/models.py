@@ -26,6 +26,7 @@ class Service(db.Model):
 
     sub_services = db.relationship('SubService', backref='category', lazy=True)
 
+
 # Модель подкатегории услуги
 class SubService(db.Model):
     __tablename__ = 'sub_services'
@@ -34,6 +35,7 @@ class SubService(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)  # Связь с таблицей services
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
+
 
 # Модель заявки
 class Application(db.Model):
@@ -59,3 +61,23 @@ class Application(db.Model):
     comments = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), default='Создана', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Модель завершенных заказов
+class CompletedOrder(db.Model):
+    __tablename__ = 'completed_orders'
+
+    id = db.Column(db.Integer, primary_key=True)
+    executor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Исполнитель
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Пользователь, создавший заявку
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=False)  # Заявка
+    executor_comment = db.Column(db.Text, nullable=True)  # Комментарий от исполнителя
+    completion_date = db.Column(db.DateTime, default=datetime.utcnow)  # Дата завершения
+    work_duration = db.Column(db.Interval, nullable=True)  # Время выполнения (можно передавать timedelta)
+    rating = db.Column(db.Integer, default=0)  # Оценка, 0 означает отсутствие оценки
+    success = db.Column(db.Boolean, default=True)  # Успешность выполнения
+
+    # Связи с пользователями и заявками
+    executor = db.relationship('User', foreign_keys=[executor_id], backref='completed_orders_as_executor')
+    requester = db.relationship('User', foreign_keys=[requester_id], backref='completed_orders_as_requester')
+    application = db.relationship('Application', backref='completed_order', uselist=False)
