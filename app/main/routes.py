@@ -165,3 +165,5 @@ def get_sub_services(service_id):
     sub_services = SubService.query.filter_by(service_id=service_id).all()
     sub_services_data = [{"id": sub_service.id, "name": sub_service.name} for sub_service in sub_services]
     return jsonify(sub_services=sub_services_data)
+
+

@@ -61,3 +61,18 @@ class ApplicationFilterForm(FlaskForm):
     service_type = SelectField('Категория услуги', choices=[], coerce=int)
     sub_service = SelectField('Подкатегория услуги', choices=[], coerce=int)
     user_only = BooleanField('Только мои заявки', default=True)
+
+
+# Форма для подтверждения взятия заявки в исполнение
+class TakeOrderForm(FlaskForm):
+    confirm = BooleanField('Подтвердить взятие заявки в исполнение', validators=[DataRequired()])
+    submit = SubmitField('Взять в исполнение')
+
+# Форма для завершения заявки исполнителем
+class CompleteOrderForm(FlaskForm):
+    comment = TextAreaField('Комментарий исполнителя', validators=[DataRequired(), Length(min=10, max=500)])
+    successful = SelectField('Успешность выполнения', choices=[('успешно', 'Успешно'), ('неуспешно', 'Неуспешно')],
+                             validators=[DataRequired()])
+    rating = SelectField('Оценка (от 1 до 5)', choices=[(str(i), str(i)) for i in range(1, 6)],
+                         validators=[DataRequired()])
+    submit = SubmitField('Завершить заказ')

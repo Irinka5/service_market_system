@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заявок - Исполнитель - Service Market System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Список заявок</h2>
+
+    <!-- Фильтр по категориям и подкатегориям -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label for="service_type" class="form-label">Категория услуги</label>
+            <select id="service_type" class="form-control">
+                <option value="">Выберите категорию</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="sub_service" class="form-label">Подкатегория</label>
+            <select id="sub_service" class="form-control">
+                <option value="">Выберите подкатегорию</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button id="filter_button" class="btn btn-primary">Применить фильтры</button>
+        </div>
+    </div>
+
+    <!-- Список заявок -->
+    <div id="applications_list">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Логин Заказчика</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Описание</th>
+                    <th>Город</th>
+                    <th>Бюджет</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td>{{ application.creator.username }}</td>
+                        <td>{{ application.service.name }}</td>
+                        <td>{{ application.sub_service.name }}</td>
+                        <td>{{ application.description }}</td>
+                        <td>{{ application.city }}</td>
+                        <td>{{ application.budget }}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#applicationModal{{ application.id }}">Просмотр</button>
+                        </td>
+                    </tr>
+
+                    <!-- Модальное окно для просмотра полной информации о заявке -->
+                    <div class="modal fade" id="applicationModal{{ application.id }}" tabindex="-1" aria-labelledby="applicationModalLabel{{ application.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="applicationModalLabel{{ application.id }}">Заявка #{{ application.id }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Логин Заказчика:</strong> {{ application.creator.username }}</p>
+                                    <p><strong>Категория:</strong> {{ application.service.name }}</p>
+                                    <p><strong>Подкатегория:</strong> {{ application.sub_service.name }}</p>
+                                    <p><strong>Описание:</strong> {{ application.description }}</p>
+                                    <p><strong>Город:</strong> {{ application.city }}</p>
+                                    <p><strong>Улица:</strong> {{ application.street }}</p>
+                                    <p><strong>Номер дома/квартиры:</strong> {{ application.house_number }}</p>
+                                    <p><strong>Почтовый индекс:</strong> {{ application.postal_code }}</p>
+                                    <p><strong>Имя:</strong> {{ application.contact_name }}</p>
+                                    <p><strong>Телефон:</strong> {{ application.phone }}</p>
+                                    <p><strong>Электронная почта:</strong> {{ application.email }}</p>
+                                    <p><strong>Дата выполнения:</strong> {{ application.preferred_date }}</p>
+                                    <p><strong>Время выполнения:</strong> {{ application.preferred_time }}</p>
+                                    <p><strong>Бюджет:</strong> {{ application.budget }}</p>
+                                    <p><strong>Дополнительные пожелания:</strong> {{ application.additional_requirements }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                    <button type="button" class="btn btn-success" onclick="takeOrder({{ application.id }})">Взять в исполнение</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Таблица с уже взятыми заказами -->
+    <div class="mt-5">
+        <h2>Мои взятые заказы</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Заявка #</th>
+                    <th>Логин Заказчика</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Описание</th>
+                    <th>Город</th>
+                    <th>Бюджет</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody id="taken_orders_list">
+                <!-- Список взятых заказов будет динамически подгружаться через JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        console.log('jQuery is ready');
+
+        // Поля выбора категорий и подкатегорий
+        const $serviceTypeSelect = $("#service_type");
+        const $subServiceSelect = $("#sub_service");
+
+        // Обработчик события при изменении категории
+        $serviceTypeSelect.on("change", function() {
+            const serviceId = $(this).val();
+            console.log('Selected service ID:', serviceId);
+
+            if (serviceId) {
+                $.ajax({
+                    url: `/get_sub_services/${serviceId}`,
+                    method: "GET",
+                    success: function(data) {
+                        // Очищаем список подкатегорий
+                        $subServiceSelect.empty();
+                        $subServiceSelect.append('<option value="">Выберите подкатегорию</option>');
+
+                        // Добавляем новые опции подкатегорий
+                        data.sub_services.forEach(function(subService) {
+                            const option = $('<option>', {
+                                value: subService.id,
+                                text: subService.name
+                            });
+                            $subServiceSelect.append(option);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка при загрузке подкатегорий:', error);
+                    }
+                });
+            } else {
+                $subServiceSelect.empty();
+                $subServiceSelect.append('<option value="">Выберите подкатегорию</option>');
+            }
+        });
+
+        // Функция для взятия заявки в исполнение
+        window.takeOrder = function(applicationId) {
+            $.ajax({
+                url: `/take_order/${applicationId}`,
+                method: "POST",
+                success: function(data) {
+                    alert('Заявка успешно взята в исполнение!');
+                    // Обновление списка взятых заказов
+                    loadTakenOrders();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при взятии заявки:', error);
+                    alert('Произошла ошибка при взятии заявки.');
+                }
+            });
+        };
+
+        // Загрузка списка взятых заказов
+        function loadTakenOrders() {
+            $.ajax({
+                url: `/get_taken_orders`,
+                method: "GET",
+                success: function(data) {
+                    const $takenOrdersList = $("#taken_orders_list");
+                    $takenOrdersList.empty();
+
+                    data.orders.forEach(function(order) {
+                        const row = `<tr>
+                            <td>${order.application_id}</td>
+                            <td>${order.customer_username}</td>
+                            <td>${order.service_type}</td>
+                            <td>${order.sub_service}</td>
+                            <td>${order.description}</td>
+                            <td>${order.city}</td>
+                            <td>${order.budget}</td>
+                            <td>${order.status}</td>
+                        </tr>`;
+                        $takenOrdersList.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при загрузке взятых заказов:', error);
+                }
+            });
+        }
+
+        // Начальная загрузка взятых заказов
+        loadTakenOrders();
+    });
+</script>
+{% endblock %}

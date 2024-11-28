@@ -13,7 +13,7 @@
             <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Вход</a>
         {% else %}
             {% if current_user.role == 'executor' %}
-                <a class="btn btn-primary btn-lg" href="{{ url_for('main.application_list') }}" role="button">Список заявок</a>
+                <a class="btn btn-primary btn-lg" href="{{ url_for('executor.executor_applications') }}" role="button">Список заявок</a>
             {% elif current_user.role == 'customer' %}
                 <a class="btn btn-primary btn-lg" href="{{ url_for('main.new_application') }}" role="button">Создать заявку</a>
             {% endif %}
