@@ -102,3 +102,13 @@ def edit_application(application_id):
 
     db.session.commit()
     return jsonify({"success": True, "message": "Заявка успешно обновлена"})
+
+
+# Эндпоинт для удаления заявки
+@admin.route('/admin/delete_application/<int:application_id>', methods=['DELETE'])
+@admin_required
+def delete_application(application_id):
+    application = Application.query.get_or_404(application_id)
+    db.session.delete(application)
+    db.session.commit()
+    return jsonify({"success": True})

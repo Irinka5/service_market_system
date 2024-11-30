@@ -129,6 +129,22 @@
                     const $applicationsList = $("#applications_list");
                     $applicationsList.empty();
                     data.applications.forEach(function(application) {
+                        let actions = '';
+
+                        // Проверяем статус заявки
+                        if (application.status === 'Завершена') {
+                            // Для завершённых заявок добавляем только кнопку редактирования
+                            actions = `
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editApplicationModal" onclick="editApplication(${application.id})">Редактировать</button>
+                            `;
+                        } else {
+                            // Для незавершённых заявок добавляем обе кнопки
+                            actions = `
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editApplicationModal" onclick="editApplication(${application.id})">Редактировать</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteApplication(${application.id})">Удалить</button>
+                            `;
+                        }
+
                         const row = `<tr>
                             <td>${application.id}</td>
                             <td>${application.creator_username}</td>
@@ -138,10 +154,7 @@
                             <td>${application.city}</td>
                             <td>${application.budget}</td>
                             <td>${application.status}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editApplicationModal" onclick="editApplication(${application.id})">Редактировать</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteApplication(${application.id})">Удалить</button>
-                            </td>
+                            <td>${actions}</td>
                         </tr>`;
                         $applicationsList.append(row);
                     });
@@ -151,6 +164,7 @@
                 }
             });
         }
+
 
         // Загрузка всех завершённых заказов
         function loadCompletedOrders() {
@@ -170,7 +184,6 @@
                             <td>${order.completion_date}</td>
                             <td>
                                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCompletedOrderModal" onclick="editCompletedOrder(${order.id})">Редактировать</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCompletedOrder(${order.id})">Удалить</button>
                             </td>
                         </tr>`;
                         $completedOrdersList.append(row);
@@ -227,8 +240,7 @@
                     const modalElement = document.getElementById('editApplicationModal');
                     const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
                     if (modalInstance) {
-                        modalInstance.hide();
-                        modalInstance.dispose(); // Удаляем экземпляр модального окна после его закрытия
+                        modalInstance.hide();  // Закрытие модального окна
                     }
 
                     // Принудительное удаление backdrop в случае, если он остался
@@ -247,8 +259,23 @@
 
         // Удаление заявки
         window.deleteApplication = function(applicationId) {
-            // Логика для удаления заявки
+            if (confirm("Вы уверены, что хотите удалить эту заявку?")) {
+                $.ajax({
+                    url: `/admin/delete_application/${applicationId}`,
+                    method: "DELETE",
+                    success: function(data) {
+                        alert('Заявка успешно удалена.');
+                        // Обновление списка заявок после удаления
+                        loadApplications();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка при удалении заявки:', error);
+                        alert('Произошла ошибка при удалении заявки.');
+                    }
+                });
+            }
         };
+
 
         // Редактирование завершённого заказа
         window.editCompletedOrder = function(orderId) {
