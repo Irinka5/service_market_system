@@ -16,6 +16,8 @@
                 <a class="btn btn-primary btn-lg" href="{{ url_for('executor.executor_applications') }}" role="button">Список заявок</a>
             {% elif current_user.role == 'customer' %}
                 <a class="btn btn-primary btn-lg" href="{{ url_for('main.new_application') }}" role="button">Создать заявку</a>
+        {% elif current_user.role == 'admin' %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('admin.admin_panel') }}" role="button">Админ панель</a>
             {% endif %}
         {% endif %}
     </div>

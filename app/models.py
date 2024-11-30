@@ -79,7 +79,7 @@ class Application(db.Model):
     creator = db.relationship('User', back_populates='applications', foreign_keys=[user_id])
     assigned_executor = db.relationship('User', back_populates='executed_applications', foreign_keys=[executor_id])
     service = db.relationship('Service', backref='applications', foreign_keys=[service_type])
-
+    subservice = db.relationship('SubService', backref='applications', foreign_keys=[sub_service])
 
     # Завершенный заказ
     completed_order = db.relationship('CompletedOrder', back_populates='application', uselist=False)
