@@ -4,6 +4,7 @@ from .. import db
 from ..models import Application, Service, SubService, CompletedOrder
 from ..forms import ApplicationForm
 from . import executor
+from datetime import  datetime
 
 # Эндпоинт для отображения всех доступных заявок исполнителю
 @executor.route('/executor/applications', methods=['GET'])
@@ -32,22 +33,15 @@ def get_sub_services(service_id):
 @executor.route('/take_order/<int:application_id>', methods=['POST'])
 @login_required
 def take_order(application_id):
-    """
-    Взять заявку в исполнение.
-    """
     application = Application.query.get_or_404(application_id)
-
-    # Проверяем, что заявка еще не была взята в работу
     if application.status != 'Создана':
-        flash('Эту заявку уже кто-то взял в работу.', 'warning')
-        return redirect(url_for('executor.application_executor_list'))
+        return jsonify({"error": "Заявка уже взята или недоступна."}), 400
 
-    # Обновляем заявку, добавляем исполнителя
     application.executor_id = current_user.id
     application.status = 'В работе'
     db.session.commit()
-    flash('Вы успешно взяли заявку в исполнение!', 'success')
-    return redirect(url_for('executor.application_executor_list'))
+
+    return jsonify({"success": True})
 
 
 # Эндпоинт для получения списка взятых исполнителем заказов
@@ -63,7 +57,7 @@ def get_taken_orders():
         {
             "id": order.id,
             "service_type": order.service.name if order.service else None,
-            "sub_service": order.sub_service.name if order.sub_service else None,
+            "sub_service": SubService.query.get(order.sub_service).name if order.sub_service else None,
             "description": order.description,
             "city": order.city,
             "contact_name": order.contact_name,
@@ -78,3 +72,39 @@ def get_taken_orders():
     ]
 
     return jsonify({"orders": orders_list})
+
+# Эндпоинт для завершения заказа
+@executor.route('/complete_order/<int:application_id>', methods=['POST'])
+@login_required
+def complete_order(application_id):
+    if current_user.role != 'executor':
+        return jsonify({"error": "У вас нет прав на выполнение этой операции."}), 403
+
+    application = Application.query.get_or_404(application_id)
+
+    if application.executor_id != current_user.id:
+        return jsonify({"error": "Вы не можете завершить этот заказ, так как вы его не выполняете."}), 403
+
+    if application.status != 'В работе':
+        return jsonify({"error": "Только заявки в статусе 'В работе' могут быть завершены."}), 400
+
+    data = request.get_json()
+    executor_comment = data.get('executor_comment')
+    success = data.get('success')
+
+    # Обновляем статус заявки и создаем запись о завершении заказа
+    application.status = 'Завершена'
+
+    completed_order = CompletedOrder(
+        executor_id=current_user.id,
+        requester_id=application.user_id,
+        application_id=application.id,
+        executor_comment=executor_comment,
+        success=True if success == 'true' else False,
+        completion_date=datetime.utcnow()
+    )
+
+    db.session.add(completed_order)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Заказ успешно завершен!"})
