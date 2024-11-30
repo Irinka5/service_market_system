@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, StringField, DateField, TimeField, FloatField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, StringField, DateField, \
+    TimeField, FloatField, BooleanField
 from wtforms.validators import DataRequired, Optional, Length, EqualTo, ValidationError, Email
 from .models import User
 
@@ -53,9 +54,11 @@ class ApplicationForm(FlaskForm):
     preferred_time = TimeField('Предпочтительное время', validators=[])
     budget = FloatField('Бюджет', validators=[DataRequired()])
     additional_requirements = TextAreaField('Дополнительные пожелания или требования')
-    payment_method = SelectField('Способ оплаты', choices=[('cash', 'Наличные'), ('card', 'Банковская карта'), ('online', 'Онлайн-платеж')], validators=[DataRequired()])
+    payment_method = SelectField('Способ оплаты', choices=[('cash', 'Наличные'), ('card', 'Банковская карта'),
+                                                           ('online', 'Онлайн-платеж')], validators=[DataRequired()])
     comments = TextAreaField('Комментарии')
     submit = SubmitField('Создать заявку')
+
 
 class ApplicationFilterForm(FlaskForm):
     service_type = SelectField('Категория услуги', choices=[], coerce=int)
@@ -67,6 +70,7 @@ class ApplicationFilterForm(FlaskForm):
 class TakeOrderForm(FlaskForm):
     confirm = BooleanField('Подтвердить взятие заявки в исполнение', validators=[DataRequired()])
     submit = SubmitField('Взять в исполнение')
+
 
 # Форма для завершения заявки исполнителем
 class CompleteOrderForm(FlaskForm):
