@@ -188,13 +188,62 @@
 
         // Редактирование заявки
         window.editApplication = function(applicationId) {
-            // Логика для получения данных о заявке и заполнения формы
+            $.ajax({
+                url: `/admin/get_application_admin/${applicationId}`,
+                method: "GET",
+                success: function(data) {
+                    // Заполнение формы редактирования данными заявки
+                    $('#edit_description').val(data.application.description);
+                    $('#edit_status').val(data.application.status);
+
+                    // Устанавливаем data-attribute на кнопку сохранения, чтобы знать, какую заявку редактировать
+                    $('#editApplicationModal').attr('data-application-id', applicationId);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при загрузке данных заявки:', error);
+                }
+            });
         };
 
         // Сохранение изменений в заявке
         window.saveApplicationChanges = function() {
-            // Логика для сохранения изменений
+            const applicationId = $('#editApplicationModal').data('applicationId');
+            const updatedDescription = $('#edit_description').val();
+            const updatedStatus = $('#edit_status').val();
+
+            $.ajax({
+                url: `/admin/edit_application/${applicationId}`,
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    description: updatedDescription,
+                    status: updatedStatus
+                }),
+                success: function(data) {
+                    // Заменяем alert на более удобное уведомление
+                    console.log('Изменения успешно сохранены!');
+
+                    // Закрытие модального окна корректно для Bootstrap 5
+                    const modalElement = document.getElementById('editApplicationModal');
+                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                        modalInstance.dispose(); // Удаляем экземпляр модального окна после его закрытия
+                    }
+
+                    // Принудительное удаление backdrop в случае, если он остался
+                    $('.modal-backdrop').remove();
+
+                    // Перезагрузка списка заявок
+                    loadApplications();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при сохранении изменений в заявке:', error);
+                    alert('Произошла ошибка при сохранении изменений.');
+                }
+            });
         };
+
 
         // Удаление заявки
         window.deleteApplication = function(applicationId) {
