@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора - Service Market System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Панель администратора</h2>
+
+    <!-- Список всех заявок -->
+    <div class="mt-4">
+        <h3>Все заявки</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Заявка #</th>
+                    <th>Логин Заказчика</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Описание</th>
+                    <th>Город</th>
+                    <th>Бюджет</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="applications_list">
+                <!-- Динамически генерируемые строки заявок через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Список всех завершённых заказов -->
+    <div class="mt-5">
+        <h3>Все завершённые заказы</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Заявка #</th>
+                    <th>Исполнитель</th>
+                    <th>Заказчик</th>
+                    <th>Статус</th>
+                    <th>Комментарий</th>
+                    <th>Дата завершения</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="completed_orders_list">
+                <!-- Динамически генерируемые строки завершённых заказов через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно для редактирования заявки -->
+<div class="modal fade" id="editApplicationModal" tabindex="-1" aria-labelledby="editApplicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editApplicationModalLabel">Редактирование заявки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editApplicationForm">
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Описание</label>
+                        <textarea id="edit_description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_status" class="form-label">Статус</label>
+                        <select id="edit_status" class="form-control">
+                            <option value="Создана">Создана</option>
+                            <option value="В работе">В работе</option>
+                            <option value="Завершена">Завершена</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-success" onclick="saveApplicationChanges()">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования завершённого заказа -->
+<div class="modal fade" id="editCompletedOrderModal" tabindex="-1" aria-labelledby="editCompletedOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCompletedOrderModalLabel">Редактирование завершённого заказа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCompletedOrderForm">
+                    <div class="mb-3">
+                        <label for="edit_order_comment" class="form-label">Комментарий исполнителя</label>
+                        <textarea id="edit_order_comment" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_order_success" class="form-label">Статус выполнения</label>
+                        <select id="edit_order_success" class="form-control">
+                            <option value="true">Успешно</option>
+                            <option value="false">Неуспешно</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-success" onclick="saveCompletedOrderChanges()">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function() {
+        // Загрузка всех заявок
+        function loadApplications() {
+            $.ajax({
+                url: `/admin/get_applications`,
+                method: "GET",
+                success: function(data) {
+                    const $applicationsList = $("#applications_list");
+                    $applicationsList.empty();
+                    data.applications.forEach(function(application) {
+                        const row = `<tr>
+                            <td>${application.id}</td>
+                            <td>${application.creator_username}</td>
+                            <td>${application.service_type}</td>
+                            <td>${application.sub_service}</td>
+                            <td>${application.description}</td>
+                            <td>${application.city}</td>
+                            <td>${application.budget}</td>
+                            <td>${application.status}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editApplicationModal" onclick="editApplication(${application.id})">Редактировать</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteApplication(${application.id})">Удалить</button>
+                            </td>
+                        </tr>`;
+                        $applicationsList.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при загрузке заявок:', error);
+                }
+            });
+        }
+
+        // Загрузка всех завершённых заказов
+        function loadCompletedOrders() {
+            $.ajax({
+                url: `/admin/get_completed_orders`,
+                method: "GET",
+                success: function(data) {
+                    const $completedOrdersList = $("#completed_orders_list");
+                    $completedOrdersList.empty();
+                    data.orders.forEach(function(order) {
+                        const row = `<tr>
+                            <td>${order.id}</td>
+                            <td>${order.executor_username}</td>
+                            <td>${order.customer_username}</td>
+                            <td>${order.success ? 'Успешно' : 'Неуспешно'}</td>
+                            <td>${order.executor_comment}</td>
+                            <td>${order.completion_date}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCompletedOrderModal" onclick="editCompletedOrder(${order.id})">Редактировать</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCompletedOrder(${order.id})">Удалить</button>
+                            </td>
+                        </tr>`;
+                        $completedOrdersList.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при загрузке завершённых заказов:', error);
+                }
+            });
+        }
+
+        // Начальная загрузка данных
+        loadApplications();
+        loadCompletedOrders();
+
+        // Редактирование заявки
+        window.editApplication = function(applicationId) {
+            // Логика для получения данных о заявке и заполнения формы
+        };
+
+        // Сохранение изменений в заявке
+        window.saveApplicationChanges = function() {
+            // Логика для сохранения изменений
+        };
+
+        // Удаление заявки
+        window.deleteApplication = function(applicationId) {
+            // Логика для удаления заявки
+        };
+
+        // Редактирование завершённого заказа
+        window.editCompletedOrder = function(orderId) {
+            // Логика для получения данных о заказе и заполнения формы
+        };
+
+        // Сохранение изменений в завершённом заказе
+        window.saveCompletedOrderChanges = function() {
+            // Логика для сохранения изменений в завершённом заказе
+        };
+
+        // Удаление завершённого заказа
+        window.deleteCompletedOrder = function(orderId) {
+            // Логика для удаления завершённого заказа
+        };
+    });
+</script>
+{% endblock %}
