@@ -108,3 +108,31 @@ def complete_order(application_id):
     db.session.commit()
 
     return jsonify({"success": True, "message": "Заказ успешно завершен!"})
+
+
+# Эндпоинт для получения списка завершённых исполнителем заказов
+@executor.route('/get_completed_orders', methods=['GET'])
+@login_required
+def get_completed_orders():
+    if current_user.role != 'executor':
+        return jsonify({"error": "У вас нет прав на выполнение этой операции."}), 403
+
+    completed_orders = CompletedOrder.query.filter_by(executor_id=current_user.id).all()
+
+    orders_list = [
+        {
+            "id": order.application_id,
+            "customer_username": order.requester.username,
+            "service_type": order.application.service.name if order.application.service else None,
+            "sub_service": SubService.query.get(order.application.sub_service).name if order.application.sub_service else None,
+            "description": order.application.description,
+            "city": order.application.city,
+            "budget": order.application.budget,
+            "success": order.success,
+            "executor_comment": order.executor_comment,
+        }
+        for order in completed_orders
+    ]
+
+    return jsonify({"orders": orders_list})
+

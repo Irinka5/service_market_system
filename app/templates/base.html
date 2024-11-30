@@ -16,12 +16,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <!-- Навигация для авторизованного пользователя -->
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.new_application') }}">Создать заявку</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.application_list') }}">Мои заявки</a>
+                            {% if current_user.role == 'executor' %}
+                                <!-- Ссылка на список заявок для исполнителя -->
+                                <a class="nav-link" href="{{ url_for('executor.executor_applications') }}">Список заявок</a>
+                            {% else %}
+                                <!-- Ссылка на создание заявки для обычного пользователя -->
+                                <a class="nav-link" href="{{ url_for('main.new_application') }}">Создать заявку</a>
+                                <a class="nav-link" href="{{ url_for('main.application_list') }}">Мои заявки</a>
+                            {% endif %}
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.logout') }}">Выйти ({{ current_user.username }})</a>

@@ -115,6 +115,27 @@
         </table>
     </div>
     <div id="modalsContainer"></div>
+        <div class="mt-5">
+        <h2>Мои завершённые заказы</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Заявка #</th>
+                    <th>Логин Заказчика</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Описание</th>
+                    <th>Город</th>
+                    <th>Бюджет</th>
+                    <th>Успешность</th>
+                    <th>Комментарий</th>
+                </tr>
+            </thead>
+            <tbody id="completed_orders_list">
+                <!-- Список завершённых заказов будет динамически подгружаться через JS -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -245,6 +266,40 @@
                 }
             });
         }
+
+        // Загрузка списка завершённых заказов
+        function loadCompletedOrders() {
+            $.ajax({
+                url: `/get_completed_orders`,
+                method: "GET",
+                success: function(data) {
+                    const $completedOrdersList = $("#completed_orders_list");
+                    $completedOrdersList.empty();
+
+                    data.orders.forEach(function(order) {
+                        const row = `<tr>
+                            <td>${order.id}</td>
+                            <td>${order.customer_username}</td>
+                            <td>${order.service_type}</td>
+                            <td>${order.sub_service}</td>
+                            <td>${order.description}</td>
+                            <td>${order.city}</td>
+                            <td>${order.budget}</td>
+                            <td>${order.success ? 'Успешно' : 'Неуспешно'}</td>
+                            <td>${order.executor_comment}</td>
+                        </tr>`;
+                        $completedOrdersList.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при загрузке завершённых заказов:', error);
+                }
+            });
+        }
+
+        // Начальная загрузка завершённых заказов
+        loadCompletedOrders();
+
 
 
         // Начальная загрузка взятых заказов
