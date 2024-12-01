@@ -27,7 +27,7 @@ class ApplicationWorkflowFunctionalTestCase(unittest.TestCase):
         # Создание тестовых данных для сервисов и подкатегорий
         self.service = Service(name='Ремонт', description='Ремонтные работы')
         db.session.add(self.service)
-        db.session.commit()  # Коммит после добавления service
+        db.session.commit()
 
         # Проверим, что сервис был создан и сохранён
         self.service = Service.query.filter_by(name='Ремонт').first()
@@ -36,7 +36,7 @@ class ApplicationWorkflowFunctionalTestCase(unittest.TestCase):
 
         self.sub_service = SubService(service_id=self.service.id, name='Сантехника', description='Сантехнические работы')
         db.session.add(self.sub_service)
-        db.session.commit()  # Коммит после добавления sub_service
+        db.session.commit()
 
         # Проверим, что подкатегория была создана и сохранена
         self.sub_service = SubService.query.filter_by(name='Сантехника').first()
@@ -72,19 +72,12 @@ class ApplicationWorkflowFunctionalTestCase(unittest.TestCase):
             'preferred_time': '',
             'budget': 5000.0,
             'additional_requirements': '',
-            'payment_method': 'cash',  # Здесь важно убедиться, что это допустимое значение
+            'payment_method': 'cash',
             'comments': ''
         }, follow_redirects=True)
 
-        # Проверка на успешное создание
         self.assertEqual(response.status_code, 200)
         self.assertIn('Ваша заявка успешно создана!', response.data.decode('utf-8'))
-
-        # Редактирование заявки
-        # Здесь следует добавить код для редактирования заявки, если в вашем приложении поддерживается функционал редактирования.
-
-        # Удаление заявки
-        # Здесь следует добавить код для удаления заявки, если в вашем приложении поддерживается функционал удаления.
 
 if __name__ == '__main__':
     unittest.main()
