@@ -1,10 +1,19 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, send_file, jsonify
 from flask_login import login_required, current_user
 from .. import db
-from ..models import Application, CompletedOrder, User, Service, SubService
+from ..models import User, Application, Service, SubService, CompletedOrder
 from . import admin
+from datetime import datetime
+from io import BytesIO  # <-- Добавлен импорт BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from functools import wraps
-from ..forms import ApplicationForm, CompleteOrderForm
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib import fonts
+
+
 
 # Проверка роли администратора
 def admin_required(f):
@@ -112,3 +121,61 @@ def delete_application(application_id):
     db.session.delete(application)
     db.session.commit()
     return jsonify({"success": True})
+
+
+@admin.route('/generate_report', methods=['GET'])
+@login_required
+def generate_report():
+    if current_user.role != 'admin':
+        flash('У вас нет прав для выполнения данного действия.', 'danger')
+        return redirect(url_for('main.index'))
+
+    # Создание временного PDF файла
+    buffer = BytesIO()
+
+    # Подключение и регистрация шрифта, поддерживающего кириллицу
+    pdfmetrics.registerFont(TTFont('arial', '../fonts/arial.ttf'))
+
+    p = canvas.Canvas(buffer, pagesize=letter)
+    p.setFont('arial', 12)  # Устанавливаем шрифт для поддержки кириллицы
+
+    # Заголовок отчета
+    p.drawString(100, 750, "Отчёт о текущем состоянии заявок и пользователей")
+    p.drawString(100, 730, f"Дата создания отчёта: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # Информация о пользователях
+    p.drawString(100, 700, "Пользователи:")
+    y_position = 680
+    users = User.query.all()
+    for user in users:
+        user_info = f"ID: {user.id}, Имя пользователя: {user.username}, Роль: {user.role}, Дата создания: {user.created_at}"
+        p.drawString(100, y_position, user_info)
+        y_position -= 20
+
+    # Информация о заявках
+    y_position -= 20
+    p.drawString(100, y_position, "Заявки:")
+    y_position -= 20
+    applications = Application.query.all()
+    for application in applications:
+        app_info = (f"ID: {application.id}, Пользователь: {application.creator.username}, "
+                    f"Услуга: {application.service.name if application.service else 'N/A'}, "
+                    f"Подуслуга: {application.subservice.name if application.subservice else 'N/A'}, "
+                    f"Город: {application.city}, Статус: {application.status}")
+        p.drawString(100, y_position, app_info)
+        y_position -= 20
+
+        # Проверяем, не выходит ли текст за границы страницы
+        if y_position < 50:
+            p.showPage()  # Создаём новую страницу
+            p.setFont('DejaVuSans', 12)
+            y_position = 750
+
+    p.save()
+
+    # Перемотка временного файла для чтения
+    buffer.seek(0)
+
+    # Отправка файла клиенту
+    return send_file(buffer, as_attachment=True, download_name=f'report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                     mimetype='application/pdf')

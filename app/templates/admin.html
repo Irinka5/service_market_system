@@ -5,6 +5,7 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center">Панель администратора</h2>
+    <a href="{{ url_for('admin.generate_report') }}" class="btn btn-primary">Сгенерировать отчет</a>
 
     <!-- Список всех заявок -->
     <div class="mt-4">
