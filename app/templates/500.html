@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Ошибка 500 - Внутренняя ошибка сервера{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1>Ошибка 500</h1>
+    <p>На сервере произошла ошибка. Пожалуйста, попробуйте позже.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3">Вернуться на главную</a>
+</div>
+{% endblock %}
