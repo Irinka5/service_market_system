@@ -5,7 +5,6 @@ from ..forms import RegistrationForm, LoginForm
 from ..models import User
 from .. import db
 from . import auth
-from datetime import datetime
 
 
 @auth.route('/login', methods=['GET', 'POST'])
