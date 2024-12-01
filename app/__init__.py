@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
+
 
 # Функция для создания экземпляра приложения
 def create_app():
@@ -163,12 +164,14 @@ def create_app():
                            description="Обучение работе на компьютере и программированию"),
                 SubService(name="Бизнес-тренинги", service_id=7, description="Тренинги по развитию бизнес-навыков"),
                 SubService(name="Репетиторство", service_id=7, description="Индивидуальные занятия с репетиторами"),
-                SubService(name="Курсы повышения квалификации", service_id=7, description="Обучение для профессионалов"),
+                SubService(name="Курсы повышения квалификации", service_id=7,
+                           description="Обучение для профессионалов"),
                 SubService(name="Детские кружки", service_id=7, description="Кружки и секции для детей"),
                 SubService(name="Онлайн-курсы", service_id=7, description="Обучение через интернет"),
                 SubService(name="Курсы по искусству", service_id=7,
                            description="Обучение рисованию, музыке и другим видам искусства"),
-                SubService(name="Курсы по кулинарии", service_id=7, description="Обучение приготовлению различных блюд"),
+                SubService(name="Курсы по кулинарии", service_id=7,
+                           description="Обучение приготовлению различных блюд"),
                 SubService(name="Курсы по фитнесу", service_id=7,
                            description="Обучение фитнесу и здоровому образу жизни"),
                 # Подкатегории для категории "Домашние питомцы"
@@ -248,5 +251,13 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        return render_template('500.html'), 500
 
     return app
