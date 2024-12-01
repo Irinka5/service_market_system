@@ -9,13 +9,14 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
 
-
 # Функция для создания экземпляра приложения
 def create_app():
     app = Flask(__name__)
 
     # Конфигурация приложения
     app.config.from_object('app.config.Config')
+    from datetime import datetime
+    app.jinja_env.globals['datetime'] = datetime
 
     # Инициализация расширений с приложением
     db.init_app(app)
