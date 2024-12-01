@@ -6,11 +6,77 @@
     <title>{% block title %}Service Market System{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Подключаем Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"> <!-- Подключаем Google Fonts (Roboto) для более современного шрифта -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa; /* Лёгкий серый фон для выделения контента */
+        }
+
+        .navbar {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень для навигации */
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            font-size: 1.1rem;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #007bff; /* Добавляем выделение синим цветом при наведении */
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .alert {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень для выделения сообщений */
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: #f8f9fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Service Market System</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}"><i class="fas fa-cogs"></i> Service Market System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -18,41 +84,43 @@
                 <ul class="navbar-nav ms-auto">
                     <!-- Навигация для авторизованного пользователя -->
                     {% if current_user.is_authenticated %}
-                            {% if current_user.role == 'executor' %}
-                                <!-- Ссылка на список заявок для исполнителя -->
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('executor.executor_applications') }}">Список заявок</a></li>
-                            {% else %}
-                                <!-- Ссылка на создание заявки для обычного пользователя -->
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ url_for('main.new_application') }}">Создать заявку</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ url_for('main.application_list') }}">Мои заявки</a>
-                                </li>
-                            {% endif %}
+                        {% if current_user.role == 'executor' %}
+                            <!-- Ссылка на список заявок для исполнителя -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('executor.executor_applications') }}"><i class="fas fa-list"></i> Список заявок</a>
+                            </li>
+                        {% else %}
+                            <!-- Ссылка на создание заявки для обычного пользователя -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('main.new_application') }}"><i class="fas fa-plus-circle"></i> Создать заявку</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('main.application_list') }}"><i class="fas fa-folder-open"></i> Мои заявки</a>
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Выйти ({{ current_user.username }})</a>
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Выйти ({{ current_user.username }})</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">Вход</a>
+                            <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> Вход</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}">Регистрация</a>
+                            <a class="nav-link" href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus"></i> Регистрация</a>
                         </li>
                     {% endif %}
-
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Контент -->
+    <div class="container mt-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }}" role="alert">
-                        {{ message }}
+                        <i class="fas fa-info-circle"></i> {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
@@ -61,6 +129,12 @@
         {% block content %}
         {% endblock %}
     </div>
+
+    <!-- Футер -->
+    <footer>
+        <p>&copy; {{ datetime.now().year }} Service Market System. Все права защищены.</p>
+        <p>Powered by <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> & <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a></p>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
