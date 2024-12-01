@@ -4,12 +4,12 @@ from .. import db
 from ..models import Service, Application, SubService
 from ..forms import ApplicationForm
 from . import main
-
+from datetime import datetime
 
 @main.route('/')
 def index():
     services = Service.query.all()
-    return render_template('index.html', services=services)
+    return render_template('index.html', services=services, datetime=datetime)
 
 
 @main.route('/application/new', methods=['GET', 'POST'])

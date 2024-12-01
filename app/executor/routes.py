@@ -4,7 +4,8 @@ from .. import db
 from ..models import Application, Service, SubService, CompletedOrder
 from ..forms import ApplicationForm
 from . import executor
-from datetime import  datetime
+from datetime import datetime
+
 
 # Эндпоинт для отображения всех доступных заявок исполнителю
 @executor.route('/executor/applications', methods=['GET'])
@@ -73,6 +74,7 @@ def get_taken_orders():
 
     return jsonify({"orders": orders_list})
 
+
 # Эндпоинт для завершения заказа
 @executor.route('/complete_order/<int:application_id>', methods=['POST'])
 @login_required
@@ -124,7 +126,8 @@ def get_completed_orders():
             "id": order.application_id,
             "customer_username": order.requester.username,
             "service_type": order.application.service.name if order.application.service else None,
-            "sub_service": SubService.query.get(order.application.sub_service).name if order.application.sub_service else None,
+            "sub_service": SubService.query.get(
+                order.application.sub_service).name if order.application.sub_service else None,
             "description": order.application.description,
             "city": order.application.city,
             "budget": order.application.budget,
@@ -135,4 +138,3 @@ def get_completed_orders():
     ]
 
     return jsonify({"orders": orders_list})
-
