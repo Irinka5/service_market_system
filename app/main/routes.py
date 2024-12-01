@@ -107,7 +107,7 @@ def get_application_details(application_id):
     sub_service = SubService.query.get(application.sub_service)
 
     return jsonify({
-        'username': application.user.username,
+        'username': application.creator.username,  # Используем отношение creator для доступа к username пользователя
         'service_type': service.name if service else None,
         'sub_service': sub_service.name if sub_service else None,
         'description': application.description,
@@ -118,32 +118,8 @@ def get_application_details(application_id):
         'email': application.email,
         'preferred_date': application.preferred_date.strftime('%Y-%m-%d') if application.preferred_date else None,
         'preferred_time': application.preferred_time.strftime('%H:%M') if application.preferred_time else None,
-        "status": application.status,
-
+        'status': application.status,
     })
-
-
-
-@main.route('/application/<int:application_id>/update', methods=['GET', 'POST'])
-@login_required
-def update_application(application_id):
-    application = Application.query.get_or_404(application_id)
-    if current_user.role not in ['manager', 'admin']:
-        flash('У вас нет прав на редактирование этой заявки.', 'danger')
-        return redirect(url_for('main.applications'))
-
-    form = ApplicationForm()
-    services = Service.query.all()
-    form.service_id.choices = [(service.id, service.name) for service in services]
-
-    if form.validate_on_submit():
-        application.service_id = form.service_id.data
-        application.status = form.status.data
-        db.session.commit()
-        flash('Заявка успешно обновлена!', 'success')
-        return redirect(url_for('main.applications'))
-
-    return render_template('application_form.html', form=form)
 
 
 @main.route('/application/<int:application_id>/delete', methods=['POST'])
