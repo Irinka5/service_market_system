@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import datetime
+import os
 from reportlab.lib import fonts
 
 
@@ -135,7 +136,9 @@ def generate_report():
     buffer = BytesIO()
 
     # Подключение и регистрация шрифта, поддерживающего кириллицу
-    pdfmetrics.registerFont(TTFont('arial', '../fonts/arial.ttf'))
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    font_path = os.path.join(current_dir, '..', 'fonts', 'arial.ttf')
+    pdfmetrics.registerFont(TTFont('arial', font_path))
 
     p = canvas.Canvas(buffer, pagesize=letter)
     p.setFont('arial', 12)  # Устанавливаем шрифт для поддержки кириллицы
