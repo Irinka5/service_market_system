@@ -277,5 +277,68 @@
             }
         };
     });
+
+    // Редактирование завершённого заказа
+    window.editCompletedOrder = function(orderId) {
+        $.ajax({
+            url: `/admin/get_completed_orders`, // Эндпоинт, чтобы загрузить все завершённые заказы
+            method: "GET",
+            success: function(data) {
+                const order = data.orders.find(order => order.id === orderId);
+                if (!order) {
+                    alert('Заказ не найден.');
+                    return;
+                }
+
+                // Заполнение формы редактирования данными заказа
+                $('#edit_order_comment').val(order.executor_comment || '');
+                $('#edit_order_success').val(order.success ? 'true' : 'false');
+
+                // Устанавливаем data-attribute на модальное окно, чтобы знать, какой заказ редактируется
+                $('#editCompletedOrderModal').attr('data-order-id', orderId);
+            },
+            error: function(xhr, status, error) {
+                console.error('Ошибка при загрузке данных завершённого заказа:', error);
+            }
+        });
+    };
+
+    // Сохранение изменений в завершённом заказе
+    window.saveCompletedOrderChanges = function() {
+        const orderId = $('#editCompletedOrderModal').data('orderId');
+        const updatedComment = $('#edit_order_comment').val();
+        const updatedSuccess = $('#edit_order_success').val() === 'true'; // Преобразуем в boolean
+
+        $.ajax({
+            url: `/admin/edit_complete/${orderId}`,
+            method: "UPDATE",
+            contentType: "application/json",
+            data: JSON.stringify({
+                executor_comment: updatedComment,
+                success: updatedSuccess
+            }),
+            success: function(data) {
+                console.log('Изменения успешно сохранены!');
+
+                // Закрытие модального окна корректно для Bootstrap 5
+                const modalElement = document.getElementById('editCompletedOrderModal');
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+
+                // Принудительное удаление backdrop в случае, если он остался
+                $('.modal-backdrop').remove();
+
+                // Перезагрузка списка завершённых заказов
+                loadCompletedOrders();
+            },
+            error: function(xhr, status, error) {
+                console.error('Ошибка при сохранении изменений завершённого заказа:', error);
+                alert('Произошла ошибка при сохранении изменений.');
+            }
+        });
+    };
+
 </script>
 {% endblock %}

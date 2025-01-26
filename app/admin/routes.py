@@ -103,6 +103,7 @@ def edit_application(application_id):
     data = request.get_json()
 
     if not data:
+        flash('Данные для редактирования отсутствуют.', 'danger')
         return jsonify({"error": "Данные для редактирования заявки отсутствуют"}), 400
 
     # Обновляем поля заявки, если они присутствуют в данных запроса
@@ -110,6 +111,25 @@ def edit_application(application_id):
         application.description = data["description"]
     if "status" in data:
         application.status = data["status"]
+
+    db.session.commit()
+    return jsonify({"success": True, "message": "Заявка успешно обновлена"})
+
+@admin.route('/admin/edit_complete/<int:complete_id>', methods=['UPDATE'])
+@admin_required
+def edit_complete(complete_id):
+    complete = CompletedOrder.query.get_or_404(complete_id)
+    data = request.get_json()
+
+    if not data:
+        flash('Данные для редактирования отсутствуют.', 'danger')
+        return jsonify({"error": "Данные для редактирования заявки отсутствуют"}), 400
+
+    if "success" in data:
+        complete.success = data["success"]
+
+    if "executor_comment" in data:
+        complete.executor_comment = data["executor_comment"]
 
     db.session.commit()
     return jsonify({"success": True, "message": "Заявка успешно обновлена"})

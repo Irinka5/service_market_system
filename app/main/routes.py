@@ -83,7 +83,7 @@ def get_applications():
     application__list = [
         {
             "id": application.id,
-            "username": application.user.username if not user_only else None,
+            "username": application.creator.username if not user_only else None,
             "service_type": Service.query.get(application.service_type).name if application.service_type else None,
             "sub_service": SubService.query.get(application.sub_service).name if application.sub_service else None,
             "description": application.description,
